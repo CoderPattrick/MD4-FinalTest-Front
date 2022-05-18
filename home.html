@@ -9,7 +9,51 @@
 </head>
 <body>
 <h2>Welcum</h2>
-<select name="nations" id="nations" onchange="getCities(this.value)"></select>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+    Add City
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">City Detail</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table>
+                    <tr>
+                        <td>Name</td>
+                        <td><input type="text" id="name" name="name" style="size: 50px"></td>
+                    </tr><tr>
+                    <td>Nation</td>
+                    <td><select name="nation" id="nation"></select></td>
+                </tr><tr>
+                    <td>Area</td>
+                    <td><input type="text" id="area" name="area" style="size: 50px"></td>
+                </tr><tr>
+                    <td>Population</td>
+                    <td><input type="text" id="population" name="population" style="size: 50px"></td>
+                </tr><tr>
+                    <td>GDP</td>
+                    <td><input type="text" id="gdp" name="gdp" style="size: 50px"></td>
+                </tr><tr>
+                    <td>Description</td>
+                    <td><textarea name="description" id="description" cols="50px" rows="10"></textarea></td>
+                </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="createCity()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<select name="nations" id="nations" onclick="getCities(this.value)"></select>
 <table name="list_city" id="list_city" border="1">
 </table>
 <div id="modal_holder"></div>
@@ -21,8 +65,38 @@
 </body>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script>
-    getNations();
-    function getNations(){
+    getNations("nations");
+    getNations("nation");
+    function createCity(){
+        event.preventDefault();
+        let name = $('#name').val();
+        let nation = $('#nation').val();
+        let area = $('#area').val();
+        let population = $('#population').val();
+        let gdp = $('#gdp').val();
+        let description = $('#description').val();
+        let obj = {
+            name:name,
+            nation:{id:nation},
+            area:area,
+            population:population,
+            GDP:gdp,
+            description:description
+        }
+        $.ajax({
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            type: "POST",
+            data: JSON.stringify(obj),
+            url: "http://localhost:8080/city",
+            success: function (){
+                window.alert("Saved to Database!")
+            }
+        })
+    }
+    function getNations(html_id){
         $.ajax({
             type:"GET",
             url:"http://localhost:8080/nation",
@@ -31,7 +105,7 @@
                 for (let i = 0; i < data.length; i++) {
                     content+= "<option value='"+data[i].id+"'>"+data[i].name+"</option>";
                 }
-                $('#nations').val(content);
+                document.getElementById(html_id).innerHTML = content;
             }
         })
     }
@@ -51,12 +125,12 @@
                         "    <tr>\n" +
                         "        <td>\n" +data[i].name+
                         "        </td><td>" +data[i].nation.name+
-                        "    </td><td><button type=\"button\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\"#exampleModal\">\n" +
+                        "    </td><td><button type=\"button\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\"#exampleModal"+data[i].id+"\">\n" +
                         "  detail " +
                         "</button>"+
                         "</td>" +
                         "</tr>";
-                    content2 = "<div class=\"modal fade\" id=\"exampleModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"exampleModalLabel\" aria-hidden=\"true\">\n" +
+                    content2 = "<div class=\"modal fade\" id=\"exampleModal"+data[i].id+"\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"exampleModalLabel\" aria-hidden=\"true\">\n" +
                         "  <div class=\"modal-dialog\" role=\"document\">\n" +
                         "    <div class=\"modal-content\">\n" +
                         "      <div class=\"modal-header\">\n" +
@@ -69,22 +143,22 @@
                         "        <table>\n" +
                         "          <tr>\n" +
                         "            <th>Name</th>\n" +
-                        "            <th>"+data[i].name+"</th>\n" +
+                        "            <th><input id='city_name"+data[i].id+"' value='"+data[i].name+"'/></th>\n" +
                         "          </tr><tr>\n" +
                         "            <th>Nation</th>\n" +
-                        "            <th>"+data[i].nation.name+"</th>\n" +
+                        "            <th><select id='city_nation"+data[i].id+"'/></th>\n" +
                         "          </tr><tr>\n" +
                         "            <th>Area</th>\n" +
-                        "            <th>"+data[i].area+"</th>\n" +
+                        "            <th><input id='city_area"+data[i].id+"' value='"+data[i].area+"'/></th>\n" +
                         "          </tr><tr>\n" +
                         "            <th>GDP</th>\n" +
-                        "            <th>"+data[i].GDP+"</th>\n" +
+                        "            <th><input id='city_gdp"+data[i].id+"' value='"+data[i].gdp+"'/></th>\n" +
                         "          </tr><tr>\n" +
                         "            <th>Population</th>\n" +
-                        "            <th>"+data[i].population+"</th>\n" +
+                        "            <th><input id='city_population"+data[i].id+"' value='"+data[i].population+"'/></th>\n" +
                         "          </tr><tr>\n" +
                         "            <th>Description</th>\n" +
-                        "            <th>"+data[i].description+"</th>\n" +
+                        "            <th><input id='city_description"+data[i].id+"' value='"+data[i].description+"'/></th>\n" +
                         "          </tr>\n" +
                         "        </table>\n" +
                         "      </div>\n" +
@@ -95,15 +169,55 @@
                         "    </div>\n" +
                         "  </div>\n" +
                         "</div>";
-                    document.getElementById("modal_holder").value += content2;
+                    document.getElementById("modal_holder").innerHTML += content2;
                 }
-                $('#list_city').val(content);
-
+                for (let i = 0; i < data.length; i++) {
+                    let block_id = "city_nation"+data[i].id;
+                    getNations(block_id);
+                    document.getElementById(block_id).value = data[i].nation.id;
+                }
+                document.getElementById("list_city").innerHTML = content;
             }
         })
     }
     function editCity(id){
+        let name = "city_name"+id;
+        let nation = "city_nation"+id;
+        let area = "city_area"+id;
+        let gdp = "city_gdp"+id;
+        let population = "city_population"+id;
+        let description = "city_description"+id;
 
+        name = document.getElementById(name).value;
+        nation = document.getElementById(nation).value;
+        area = document.getElementById(area).value;
+        gdp = document.getElementById(gdp).value;
+        population = document.getElementById(population).value;
+        description = document.getElementById(description).value;
+
+        let obj = {
+            name:name,
+            nation:{
+                id:parseInt(nation)
+            },
+            area:parseFloat(area),
+            gdp:parseFloat(gdp),
+            population:parseFloat(population),
+            description:description
+        }
+
+        $.ajax({
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            type: "PUT",
+            data: JSON.stringify(obj),
+            url: "http://localhost:8080/city/"+id,
+            success: function (){
+                window.alert("Saved to Database!")
+            }
+        })
     }
 </script>
 </html>
