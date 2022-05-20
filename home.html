@@ -56,6 +56,7 @@
 <select name="nations" id="nations" onclick="getCities(this.value)"></select>
 <table name="list_city" id="list_city" border="1">
 </table>
+
 <div id="modal_holder"></div>
 
 
@@ -80,7 +81,7 @@
             nation:{id:nation},
             area:area,
             population:population,
-            GDP:gdp,
+            gdp:gdp,
             description:description
         }
         $.ajax({
@@ -104,6 +105,23 @@
                 let content ="";
                 for (let i = 0; i < data.length; i++) {
                     content+= "<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+                }
+                document.getElementById(html_id).innerHTML = content;
+            }
+        })
+    }
+    function getNations(html_id,option_value){
+        $.ajax({
+            type:"GET",
+            url:"http://localhost:8080/nation",
+            success:function (data){
+                let content ="";
+                for (let i = 0; i < data.length; i++) {
+                    if(data[i].id != option_value){
+                        content+= "<option id='"+html_id+i+"' value='"+data[i].id+"'>"+data[i].name+"</option>";
+                    }else{
+                        content+= "<option id='"+html_id+i+"' value='"+data[i].id+"' selected>"+data[i].name+"</option>";
+                    }
                 }
                 document.getElementById(html_id).innerHTML = content;
             }
@@ -146,7 +164,9 @@
                         "            <th><input id='city_name"+data[i].id+"' value='"+data[i].name+"'/></th>\n" +
                         "          </tr><tr>\n" +
                         "            <th>Nation</th>\n" +
-                        "            <th><select id='city_nation"+data[i].id+"'/></th>\n" +
+                        "            <th><select id='city_nation"+data[i].id+"' " +
+                        // "              value='"+data[i].nation.id+"'" +
+                        "           /></th>\n" +
                         "          </tr><tr>\n" +
                         "            <th>Area</th>\n" +
                         "            <th><input id='city_area"+data[i].id+"' value='"+data[i].area+"'/></th>\n" +
@@ -173,8 +193,8 @@
                 }
                 for (let i = 0; i < data.length; i++) {
                     let block_id = "city_nation"+data[i].id;
-                    getNations(block_id);
-                    document.getElementById(block_id).value = data[i].nation.id;
+                    getNations(block_id,data[i].nation.id);
+                    // document.getElementById(block_id).setAttribute("value",data[i].nation.id);
                 }
                 document.getElementById("list_city").innerHTML = content;
             }
